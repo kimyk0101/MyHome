@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/users")
 public class UserServlet extends BaseServlet {
@@ -35,6 +36,11 @@ public class UserServlet extends BaseServlet {
 			RequestDispatcher rd = 
 					req.getRequestDispatcher("/WEB-INF/views/users/loginform.jsp");
 			rd.forward(req, resp);
+		} else if ("logout".equals(actionName)) {
+			HttpSession session = req.getSession();
+			session.removeAttribute("authUser");
+			session.invalidate();
+			resp.sendRedirect(req.getContextPath());
 		} else {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
@@ -74,6 +80,8 @@ public class UserServlet extends BaseServlet {
 			System.out.println("Login User: " + vo);
 			
 			if (vo != null) {	//	사용자 정보 찾음
+				HttpSession session = req.getSession();
+				session.setAttribute("authUser", vo);
 				resp.sendRedirect(req.getContextPath());
 			} else {
 				//	로그인 실패했을 때의 처리
